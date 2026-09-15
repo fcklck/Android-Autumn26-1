@@ -65,7 +65,7 @@ object Variant4Charts {
             addSubtitle(TextTitle("Всего игроков после обработки CSV: ${players.size}", textFont))
             categoryPlot.rangeAxis.upperMargin = 0.18
             (categoryPlot.renderer as BarRenderer).apply {
-                setSeriesPaint(0, Color(59, 116, 173))
+                setSeriesPaint(0, Color(226, 115, 170))
                 setDefaultItemLabelGenerator(StandardCategoryItemLabelGenerator("{2}%", DecimalFormat("0.0")))
                 setDefaultItemLabelsVisible(true)
                 setDefaultItemLabelFont(textFont)
@@ -92,7 +92,7 @@ object Variant4Charts {
                 domainAxis.maximumCategoryLabelWidthRatio = 2.0f
                 rangeAxis.upperMargin = 0.18
                 (renderer as BarRenderer).apply {
-                    setSeriesPaint(0, Color(59, 116, 173))
+                    setSeriesPaint(0, Color(226, 115, 170))
                     setDefaultItemLabelGenerator(StandardCategoryItemLabelGenerator("{2}", DecimalFormat("0.0")))
                     setDefaultItemLabelsVisible(true)
                     setDefaultItemLabelFont(textFont)
@@ -105,7 +105,7 @@ object Variant4Charts {
                 })
                 mapDatasetToRangeAxis(1, 1)
                 setRenderer(1, LineAndShapeRenderer(true, true).apply {
-                    setSeriesPaint(0, Color(201, 91, 40))
+                    setSeriesPaint(0, Color(173, 54, 125))
                     setSeriesStroke(0, BasicStroke(3f))
                     setDefaultItemLabelGenerator(StandardCategoryItemLabelGenerator("{2}%", DecimalFormat("0.0")))
                     setDefaultItemLabelsVisible(true)
