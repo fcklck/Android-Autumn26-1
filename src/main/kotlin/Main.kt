@@ -34,7 +34,10 @@ fun main(args: Array<String>) {
             }
             metric("4. Команда с наибольшим средним числом красных карточек") {
                 if (players.isEmpty()) "Нет игроков"
-                else resolver.getTheRudestTeam().let { "${it.name} (${it.city}) — ${it.averageRedCards.decimal()}" }
+                else resolver.getTheRudestTeam().let { team ->
+                    resolver.teamSquads.first { it.team == team }
+                        .let { "${team.name} (${team.city}) — ${it.averageRedCards.decimal()}" }
+                }
             }
             section("5. Средняя трансферная стоимость по позициям") {
                 resolver.getAverageTransferCostByPosition().forEach { (position, cost) ->
@@ -64,7 +67,7 @@ fun main(args: Array<String>) {
         }
     })
 
-    Variant4Charts.save(players, resolver.teams, outputDirectory).forEach {
+    Variant4Charts.save(players, resolver.teamSquads, outputDirectory).forEach {
         println("График сохранён: ${it.path}")
     }
 }

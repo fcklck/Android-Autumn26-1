@@ -4,16 +4,10 @@ import filter.PlayerFilter
 import model.Player
 import model.Position
 import model.Team
+import model.TeamSquad
 
 class Resolver(private val players: List<Player>) : IResolver {
-    val teams: List<Team> by lazy { Team.fromPlayers(players) }
-
-    private val sortedCosts by lazy { players.map { it.transferCost }.sorted() }
-
-    val medianTransferCost: Double by lazy {
-        if (sortedCosts.isEmpty()) 0.0
-        else sortedCosts[(sortedCosts.size - 1) / 2] / 2.0 + sortedCosts[sortedCosts.size / 2] / 2.0
-    }
+    val teamSquads: List<TeamSquad> by lazy { TeamSquad.fromPlayers(players) }
 
     override fun getCountWithoutAgency(): Int = players.count { it.agency == null }
 
@@ -31,9 +25,10 @@ class Resolver(private val players: List<Player>) : IResolver {
         ?.position?.russianName
         ?: throw NoSuchElementException("В выборке нет немецких игроков")
 
-    override fun getTheRudestTeam(): Team = teams
-        .sortedWith(compareByDescending<Team> { it.averageRedCards }.thenBy { it.name }.thenBy { it.city })
+    override fun getTheRudestTeam(): Team = teamSquads
+        .sortedWith(compareByDescending<TeamSquad> { it.averageRedCards }.thenBy { it.team.name }.thenBy { it.team.city })
         .firstOrNull()
+        ?.team
         ?: throw NoSuchElementException("В выборке нет команд")
 
     override fun getAverageTransferCostByPosition(): Map<Position, Double> = players
@@ -62,6 +57,7 @@ class Resolver(private val players: List<Player>) : IResolver {
         val totalGoals = players.sumOf { it.goals.toLong() }
         if (totalGoals == 0L) return 0.0 to 0.0
 
+        val sortedCosts = players.map { it.transferCost }.sorted()
         val lower = sortedCosts[(sortedCosts.size - 1) / 2]
         val upper = sortedCosts[sortedCosts.size / 2]
         // Стоимости целые: достаточно округлить медиану вниз, не складывая два Long целиком.

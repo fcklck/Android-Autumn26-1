@@ -1,7 +1,7 @@
 package visualization
 
 import model.Player
-import model.Team
+import model.TeamSquad
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartUtils
 import org.jfree.chart.JFreeChart
@@ -22,7 +22,7 @@ import java.awt.Font
 import java.io.File
 import java.text.DecimalFormat
 
-internal data class TeamValue(val team: Team, val cumulativePercent: Double)
+internal data class TeamValue(val squad: TeamSquad, val cumulativePercent: Double)
 
 internal fun countryShares(players: List<Player>): List<Pair<String, Double>> =
     players.groupingBy { it.nationality }.eachCount()
@@ -30,19 +30,19 @@ internal fun countryShares(players: List<Player>): List<Pair<String, Double>> =
         .sortedWith(compareByDescending<Pair<String, Int>> { it.second }.thenBy { it.first })
         .map { (country, count) -> country to count * 100.0 / players.size }
 
-internal fun topTeamValues(teams: List<Team>): List<TeamValue> {
+internal fun topTeamValues(teams: List<TeamSquad>): List<TeamValue> {
     val total = teams.sumOf { it.totalTransferCost }
     val top = teams.sortedWith(
-        compareByDescending<Team> { it.totalTransferCost }.thenBy { it.name }.thenBy { it.city }
+        compareByDescending<TeamSquad> { it.totalTransferCost }.thenBy { it.team.name }.thenBy { it.team.city }
     ).take(10)
 
     // Знаменатель — стоимость всех команд, даже если их больше десяти.
-    return top.zip(top.runningFold(0L) { sum, team -> sum + team.totalTransferCost }.drop(1))
-        .map { (team, sum) -> TeamValue(team, if (total == 0L) 0.0 else sum * 100.0 / total) }
+    return top.zip(top.runningFold(0L) { sum, squad -> sum + squad.totalTransferCost }.drop(1))
+        .map { (squad, sum) -> TeamValue(squad, if (total == 0L) 0.0 else sum * 100.0 / total) }
 }
 
 object Variant4Charts {
-    fun save(players: List<Player>, teams: List<Team>, outputDirectory: File): List<File> {
+    fun save(players: List<Player>, teams: List<TeamSquad>, outputDirectory: File): List<File> {
         outputDirectory.mkdirs()
         val countries = File(outputDirectory, "countries.png")
         val leaders = File(outputDirectory, "top-teams.png")
@@ -73,12 +73,12 @@ object Variant4Charts {
         }
     }
 
-    private fun teamsChart(teams: List<Team>): JFreeChart {
+    private fun teamsChart(teams: List<TeamSquad>): JFreeChart {
         val costs = DefaultCategoryDataset()
         val shares = DefaultCategoryDataset()
-        topTeamValues(teams).forEach { (team, cumulativePercent) ->
-            val label = "${team.name} (${team.city})"
-            costs.addValue(team.totalTransferCost / 1_000_000.0, "Стоимость состава", label)
+        topTeamValues(teams).forEach { (squad, cumulativePercent) ->
+            val label = "${squad.team.name} (${squad.team.city})"
+            costs.addValue(squad.totalTransferCost / 1_000_000.0, "Стоимость состава", label)
             shares.addValue(cumulativePercent, "Накопленная доля", label)
         }
         return ChartFactory.createBarChart(

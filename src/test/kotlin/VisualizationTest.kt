@@ -1,6 +1,7 @@
 import model.Player
 import model.Position
 import model.Team
+import model.TeamSquad
 import visualization.countryShares
 import visualization.topTeamValues
 import kotlin.test.Test
@@ -19,14 +20,14 @@ class VisualizationTest {
 
     @Test
     fun `top ten cumulative share uses all teams as denominator`() {
-        val teams = Team.fromPlayers((1..11).map { cost ->
+        val teams = TeamSquad.fromPlayers((1..11).map { cost ->
             player("Brazil", Team("Team $cost", "City"), cost.toLong())
         })
 
         val values = topTeamValues(teams)
 
         assertEquals(10, values.size)
-        assertEquals("Team 11", values.first().team.name)
+        assertEquals("Team 11", values.first().squad.team.name)
         assertEquals(11.0 / 66 * 100, values.first().cumulativePercent, 0.0001)
         assertEquals(65.0 / 66 * 100, values.last().cumulativePercent, 0.0001)
         assertTrue(values.zipWithNext().all { (left, right) -> left.cumulativePercent <= right.cumulativePercent })
@@ -36,7 +37,7 @@ class VisualizationTest {
     fun `empty and zero cost data have no undefined shares`() {
         assertTrue(countryShares(emptyList()).isEmpty())
         assertTrue(topTeamValues(emptyList()).isEmpty())
-        assertEquals(0.0, topTeamValues(Team.fromPlayers(listOf(player("Brazil", cost = 0)))).single().cumulativePercent)
+        assertEquals(0.0, topTeamValues(TeamSquad.fromPlayers(listOf(player("Brazil", cost = 0)))).single().cumulativePercent)
     }
 
     private fun player(country: String, team: Team = Team("Team", "City"), cost: Long = 10) = Player(
